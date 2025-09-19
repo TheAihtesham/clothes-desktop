@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"   // or "postgresql" if you use Postgres
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  customer_id String   @id
+  name        String
+  phone       String
+  email       String?
+  address     String
+
+  sales       Sale[]
+}
+
+model Product {
+  product_id  String   @id
+  name        String
+  category_id String
+  size        String
+  color       String
+  price       String
+  stock       String
+
+  category    Category @relation(fields: [category_id], references: [category_id])
+  returns     Return[]
+  inventory   Inventory[]
+}
+
+model Supplier {
+  supplier_id String   @id
+  name        String
+  phone       String
+  email       String?
+  address     String
+
+  purchases   Purchase[]
+}
+
+model Category {
+  category_id String   @id
+  name        String
+  description String?
+
+  products    Product[]
+}
+
+model Employee {
+  employee_id String   @id
+  name        String
+  role        String
+  phone       String
+
+  serviceUsages ServiceUsage[]
+}
+
+model Sale {
+  sale_id      String   @id
+  customer_id  String
+  date         DateTime
+  total_amount String
+  payment_mode String
+
+  customer     Customer   @relation(fields: [customer_id], references: [customer_id])
+  returns      Return[]
+  serviceUsages ServiceUsage[]
+}
+
+model Purchase {
+  purchase_id  String   @id
+  supplier_id  String
+  date         DateTime
+  total_amount String
+
+  supplier     Supplier @relation(fields: [supplier_id], references: [supplier_id])
+}
+
+model Return {
+  return_id  String   @id
+  sale_id    String
+  product_id String
+  reason     String?
+  date       DateTime
+
+  sale       Sale     @relation(fields: [sale_id], references: [sale_id])
+  product    Product  @relation(fields: [product_id], references: [product_id])
+}
+
+model Inventory {
+  inventory_id String   @id
+  product_id   String
+  change_type  String
+  quantity     String
+  date         DateTime
+
+  product      Product @relation(fields: [product_id], references: [product_id])
+}
+
+model Service {
+  service_id   String   @id
+  service_name String
+  description  String?
+  price        String
+
+  usages       ServiceUsage[]
+}
+
+model ServiceUsage {
+  usage_id    String   @id
+  sale_id     String
+  service_id  String
+  employee_id String
+  notes       String?
+
+  sale        Sale     @relation(fields: [sale_id], references: [sale_id])
+  service     Service  @relation(fields: [service_id], references: [service_id])
+  employee    Employee @relation(fields: [employee_id], references: [employee_id])
+}
